@@ -4,6 +4,7 @@ parser.py
 
 from bs4 import BeautifulSoup
 from getter import raw_get
+import string
 
 def parse_html(raw_html):
     html = BeautifulSoup(raw_html, "html.parser")
@@ -29,7 +30,9 @@ def get_stats(raw_html):
     # video-extras-sparkbar-dislikes
     dislikes_style = sparkbar.contents[3].attrs['style']
 
-    views = inner_string.split()[0]
+    _views = inner_string.split()[0]
+    exclude = set(string.punctuation)
+    views = ''.join(ch for ch in _views if ch not in exclude)
     likes = likes_style.split()[1][:-1]
     dislikes = dislikes_style.split()[1][:-1]
 

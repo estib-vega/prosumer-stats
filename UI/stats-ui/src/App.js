@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-// 236.62 99.2393701985 0.760629801476
-
 // info stats style
 const infoStyle = {
   margin: "10px"
@@ -26,7 +24,7 @@ class InfoDisplayer extends Component {
 
 }
 
-const LinkInput = () => {
+const LinkInput = ({statSetter}) => {
   return (
     <div 
       style={{
@@ -46,6 +44,23 @@ const LinkInput = () => {
           boxShadow: "0 15px 20px rgba(0, 0, 0, 0.3)",
           outline: "none"
           }}
+        onChange={e => {
+          const link = e.target.value
+          
+          if (link === "" || !link) {
+            return
+          } 
+
+          fetch("/api/link", {
+            method: "POST",
+            headers:{ 'Content-Type': 'application/json' },
+            body: JSON.stringify({"link": link})
+          })
+          .then(response => response.json())
+          .then(json => statSetter(json))
+          .catch(() => console.log("couldn't retrieve"))
+          
+        }}
       />
 
     </div>
@@ -54,14 +69,34 @@ const LinkInput = () => {
 
 
 class App extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      views: 0,
+      likes: 0.0,
+      dislikes: 0.0
+    }
+
+    this.setNewStats = this.setNewStats.bind(this)
+  }
+
+  setNewStats(data) {
+    this.setState({
+      views: data.views,
+      likes: data.likes,
+      dislikes: data.dislikes
+    })
+  }
+
   render() {
     return (
       <div className="App">
-        <LinkInput/>
+        <LinkInput statSetter={this.setNewStats}/>
         <InfoDisplayer
-          views={236620}
-          likes={99.1}
-          dislikes={0.9}
+          views={this.state.views}
+          likes={this.state.likes}
+          dislikes={this.state.dislikes}
         />
       </div>
     );
